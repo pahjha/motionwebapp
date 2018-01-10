@@ -1,5 +1,6 @@
-package com.paharjha.motionwebapp;
+package com.paharjha.motionwebapp.controller;
 
+import java.util.Random;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,8 @@ public class BaseController {
 
 		model.addAttribute("message", "Welcome");
 		model.addAttribute("counter", ++counter);
+		model.addAttribute("randomNumber", new Random().nextInt(10000));
+
 		logger.debug("[welcome] counter : {}", counter);
 
 		// Spring uses InternalResourceViewResolver and return back index.jsp
