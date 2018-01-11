@@ -1,4 +1,4 @@
-package com.paharjha.motionwebapp.service;
+package com.pahjha.motionwebapp.service;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -34,7 +34,7 @@ public class ProtectedConfigFile {
 //        SecretKeySpec key = createSecretKey(password.toCharArray(),
 //                salt, iterationCount, keyLength);
 //System.out.println(new String(key.getEncoded()));
-        String originalPassword = "" + new Random().nextInt(10000);
+        String originalPassword = "" + new Random().nextInt(1000000);
         System.out.println("Original password: " + originalPassword);
         String encryptedPassword = encrypt(originalPassword, createSecretKey(password.toCharArray(),
               salt, iterationCount, keyLength));

@@ -1,4 +1,4 @@
-package com.paharjha.motionwebapp.controller;
+package com.pahjha.motionwebapp.controller;
 
 import java.util.Random;
 
