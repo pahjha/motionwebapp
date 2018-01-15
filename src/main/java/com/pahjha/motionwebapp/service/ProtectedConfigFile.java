@@ -18,79 +18,82 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class ProtectedConfigFile {
 
-    public static void main(String[] args) throws Exception {
-        String password = "heLlo1234";
-        if (password == null) {
-            throw new IllegalArgumentException("Run with -Dpassword=<password>");
-        }
+	public static void main(String[] args) throws Exception {
+		String password = "heLlo1234";
+		if (password == null) {
+			throw new IllegalArgumentException("Run with -Dpassword=<password>");
+		}
 
-        // The salt (probably) can be stored along with the encrypted data
-        byte[] salt = new String("12345678").getBytes();
+		// The salt (probably) can be stored along with the encrypted data
+		byte[] salt = new String("12345678").getBytes();
 
-        // Decreasing this speeds down startup time and can be useful during testing, but it also makes it easier for brute force attackers
-        int iterationCount = 40000;
-        // Other values give me java.security.InvalidKeyException: Illegal key size or default parameters
-        int keyLength = 128;
-//        SecretKeySpec key = createSecretKey(password.toCharArray(),
-//                salt, iterationCount, keyLength);
-//System.out.println(new String(key.getEncoded()));
-        String originalPassword = "" + new Random().nextInt(1000000);
-        System.out.println("Original password: " + originalPassword);
-        String encryptedPassword = encrypt(originalPassword, createSecretKey(password.toCharArray(),
-              salt, iterationCount, keyLength));
-        System.out.println("Encrypted password: " + encryptedPassword);
-        String decryptedPassword = decrypt(encryptedPassword, createSecretKey(password.toCharArray(),
-              salt, iterationCount, keyLength));
-        System.out.println("Decrypted password: " + decryptedPassword);
-        
-        System.out.println("Original password: " + originalPassword);
-         encryptedPassword = encrypt(originalPassword, createSecretKey(password.toCharArray(),
-                 salt, iterationCount, keyLength));
-        System.out.println("Encrypted password: " + encryptedPassword);
-         decryptedPassword = decrypt(encryptedPassword, createSecretKey(password.toCharArray(),
-                 salt, iterationCount, keyLength));
-        System.out.println("Decrypted password: " + decryptedPassword);
-        
-        
-        System.out.println("Original password: " + originalPassword);
-         encryptedPassword = encrypt(originalPassword, createSecretKey(password.toCharArray(),
-                 salt, iterationCount, keyLength));
-        System.out.println("Encrypted password: " + encryptedPassword);
-         decryptedPassword = decrypt(encryptedPassword, createSecretKey(password.toCharArray(),
-                 salt, iterationCount, keyLength));
-        System.out.println("Decrypted password: " + decryptedPassword);
-    }
+		// Decreasing this speeds down startup time and can be useful during testing,
+		// but it also makes it easier for brute force attackers
+		int iterationCount = 40000;
+		// Other values give me java.security.InvalidKeyException: Illegal key size or
+		// default parameters
+		int keyLength = 128;
+		// SecretKeySpec key = createSecretKey(password.toCharArray(),
+		// salt, iterationCount, keyLength);
+		// System.out.println(new String(key.getEncoded()));
+		String originalPassword = "" + new Random().nextInt(1000000);
+		System.out.println("Original password: " + originalPassword);
+		String encryptedPassword = encrypt(originalPassword,
+				createSecretKey(password.toCharArray(), salt, iterationCount, keyLength));
+		System.out.println("Encrypted password: " + encryptedPassword);
+		String decryptedPassword = decrypt(encryptedPassword,
+				createSecretKey(password.toCharArray(), salt, iterationCount, keyLength));
+		System.out.println("Decrypted password: " + decryptedPassword);
 
-    private static SecretKeySpec createSecretKey(char[] password, byte[] salt, int iterationCount, int keyLength) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
-        PBEKeySpec keySpec = new PBEKeySpec(password, salt, iterationCount, keyLength);
-        SecretKey keyTmp = keyFactory.generateSecret(keySpec);
-        return new SecretKeySpec(keyTmp.getEncoded(), "AES");
-    }
+		System.out.println("Original password: " + originalPassword);
+		encryptedPassword = encrypt(originalPassword,
+				createSecretKey(password.toCharArray(), salt, iterationCount, keyLength));
+		System.out.println("Encrypted password: " + encryptedPassword);
+		decryptedPassword = decrypt(encryptedPassword,
+				createSecretKey(password.toCharArray(), salt, iterationCount, keyLength));
+		System.out.println("Decrypted password: " + decryptedPassword);
 
-    private static String encrypt(String property, SecretKeySpec key) throws GeneralSecurityException, UnsupportedEncodingException {
-        Cipher pbeCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        pbeCipher.init(Cipher.ENCRYPT_MODE, key);
-        AlgorithmParameters parameters = pbeCipher.getParameters();
-        IvParameterSpec ivParameterSpec = parameters.getParameterSpec(IvParameterSpec.class);
-        byte[] cryptoText = pbeCipher.doFinal(property.getBytes("UTF-8"));
-        byte[] iv = ivParameterSpec.getIV();
-        return base64Encode(iv) + ":" + base64Encode(cryptoText);
-    }
+		System.out.println("Original password: " + originalPassword);
+		encryptedPassword = encrypt(originalPassword,
+				createSecretKey(password.toCharArray(), salt, iterationCount, keyLength));
+		System.out.println("Encrypted password: " + encryptedPassword);
+		decryptedPassword = decrypt(encryptedPassword,
+				createSecretKey(password.toCharArray(), salt, iterationCount, keyLength));
+		System.out.println("Decrypted password: " + decryptedPassword);
+	}
 
-    private static String base64Encode(byte[] bytes) {    
-        return Base64.getEncoder().encodeToString(bytes);
-    }
+	static SecretKeySpec createSecretKey(char[] password, byte[] salt, int iterationCount, int keyLength)
+			throws NoSuchAlgorithmException, InvalidKeySpecException {
+		SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+		PBEKeySpec keySpec = new PBEKeySpec(password, salt, iterationCount, keyLength);
+		SecretKey keyTmp = keyFactory.generateSecret(keySpec);
+		return new SecretKeySpec(keyTmp.getEncoded(), "AES");
+	}
 
-    private static String decrypt(String string, SecretKeySpec key) throws GeneralSecurityException, IOException {
-        String iv = string.split(":")[0];
-        String property = string.split(":")[1];
-        Cipher pbeCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        pbeCipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(base64Decode(iv)));
-        return new String(pbeCipher.doFinal(base64Decode(property)), "UTF-8");
-    }
+	static String encrypt(String property, SecretKeySpec key)
+			throws GeneralSecurityException, UnsupportedEncodingException {
+		Cipher pbeCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		pbeCipher.init(Cipher.ENCRYPT_MODE, key);
+		AlgorithmParameters parameters = pbeCipher.getParameters();
+		IvParameterSpec ivParameterSpec = parameters.getParameterSpec(IvParameterSpec.class);
+		byte[] cryptoText = pbeCipher.doFinal(property.getBytes("UTF-8"));
+		byte[] iv = ivParameterSpec.getIV();
+		return base64Encode(iv) + ":" + base64Encode(cryptoText);
+	}
 
-    private static byte[] base64Decode(String property) throws IOException {
-        return Base64.getDecoder().decode(property);
-    }
+	private static String base64Encode(byte[] bytes) {
+		return Base64.getEncoder().encodeToString(bytes);
+	}
+
+	static String decrypt(String string, SecretKeySpec key) throws GeneralSecurityException, IOException {
+		String iv = string.split(":")[0];
+		String property = string.split(":")[1];
+		Cipher pbeCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		pbeCipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(base64Decode(iv)));
+		return new String(pbeCipher.doFinal(base64Decode(property)), "UTF-8");
+	}
+
+	private static byte[] base64Decode(String property) throws IOException {
+		return Base64.getDecoder().decode(property);
+	}
 }

@@ -2,6 +2,7 @@ package com.pahjha.motionwebapp.controller;
 
 import java.util.Random;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -14,7 +15,7 @@ public class BaseController {
 
 	private static int counter = 0;
 	private static final String VIEW_INDEX = "index";
-	private final static org.slf4j.Logger logger = LoggerFactory.getLogger(BaseController.class);
+	private final static Logger logger = LoggerFactory.getLogger(BaseController.class);
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String welcome(ModelMap model) {
