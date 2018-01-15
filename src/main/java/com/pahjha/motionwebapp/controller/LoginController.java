@@ -8,20 +8,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.pahjha.motionwebapp.service.LoginService;
+import com.pahjha.motionwebapp.service.LoginServiceImpl;
+import com.pahjha.motionwebapp.service.User;
 import com.pahjha.motionwebapp.service.UserImpl;
 
 @Controller
 public class LoginController {
 
 	private static final String VIEW_HOME = "home";
+	private static final String VIEW_LOGIN = "login";
 	private final static Logger logger = LoggerFactory.getLogger(LoginController.class);
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public String login(@RequestParam("name") String name, @RequestParam("password") String password, ModelMap model) {
 
-		model.addAttribute("message", "Welcome");
-		model.addAttribute("user", new UserImpl());
-		return VIEW_HOME;
+		User user = new UserImpl();
+		user.setName(name);
+		user.setEncryptedPassword(password);
+		LoginService loginService = new LoginServiceImpl();
+		boolean result = loginService.login(user);
+		if (result) {
+			model.addAttribute("message", "Welcome " + name);
+			return VIEW_HOME;
+		}
+		model.addAttribute("message", "Username/password not correct!");
+		return VIEW_LOGIN;
 	}
 
 	// @ModelAttribute("user")
