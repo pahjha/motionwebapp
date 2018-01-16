@@ -1,11 +1,24 @@
 package com.pahjha.motionwebapp.service;
 
-public interface User {
-	String getName();
+public class User {
 
-	void setName(String name);
+	private String name;
+	private String password;
 
-	String getEncryptedPassword();
+	public String getName() {
+		return name;
+	}
 
-	void setEncryptedPassword(String encryptedPassword);
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
 }

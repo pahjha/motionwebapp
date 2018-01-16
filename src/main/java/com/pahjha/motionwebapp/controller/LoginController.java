@@ -4,14 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.pahjha.motionwebapp.service.LoginService;
 import com.pahjha.motionwebapp.service.LoginServiceImpl;
 import com.pahjha.motionwebapp.service.User;
-import com.pahjha.motionwebapp.service.UserImpl;
 
 @Controller
 public class LoginController {
@@ -20,16 +19,21 @@ public class LoginController {
 	private static final String VIEW_LOGIN = "login";
 	private final static Logger logger = LoggerFactory.getLogger(LoginController.class);
 
-	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public String login(@RequestParam("name") String name, @RequestParam("password") String password, ModelMap model) {
+	@RequestMapping(value = "/login", method = RequestMethod.GET)
+	public String welcome(ModelMap model) {
 
-		User user = new UserImpl();
-		user.setName(name);
-		user.setEncryptedPassword(password);
+		// Spring uses InternalResourceViewResolver and return back index.jsp
+		return VIEW_LOGIN;
+
+	}
+
+	@RequestMapping(value = "/loginSubmit", method = RequestMethod.POST)
+	public String login(@ModelAttribute("user") User user, ModelMap model) {
+
 		LoginService loginService = new LoginServiceImpl();
 		boolean result = loginService.login(user);
 		if (result) {
-			model.addAttribute("message", "Welcome " + name);
+			model.addAttribute("name", user.getName());
 			return VIEW_HOME;
 		}
 		model.addAttribute("message", "Username/password not correct!");
